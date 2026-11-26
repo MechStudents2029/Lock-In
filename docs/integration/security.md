@@ -1,0 +1,17 @@
+# Security and privacy audit
+
+The Git index was empty at inspection and the local branch had no commits. Remote history and GitHub settings were outside this check. The new root ignore rules cover common credential paths, environments, recordings, dataset directories, private images and model artifacts. Representative paths were checked with Git. Name-based rules cannot detect secrets in source, data in arbitrary filenames or files already tracked. Review staged contents locally and configure GitHub secret scanning and push protection where available. Keep consent records, raw recordings and identifiable data outside the checkout. Commit only synthetic or approved non-identifying fixtures.
+
+| Surface | Required release behavior | Status |
+|---|---|---|
+| Camera and recording | Process frames locally. Recording starts disabled and requires explicit activation, a visible indicator and a stop control. Test that capture alone writes nothing and that frames, landmarks and identifiers stay out of network payloads and logs. | Pending component |
+| Network | Bind HTTP, WebSocket and UI to loopback by default. Validate Host and WebSocket Origin against explicit allowlists. Authenticate state-changing routes and protect against cross-site requests. External binding requires explicit configuration and access controls. | Telemetry accepts an unlisted origin in the in-process test. Both WebSocket handlers accept immediately. |
+| API data | Reject unknown fields and invalid enums and ranges. Bound payload size. Treat stale or missing predictions as unavailable. Keep user-supplied paths and device names out of unrestricted file or port operations. | Selected schema checks simulated |
+| Serial | Decode only bounded, versioned frames. Validate command allowlist and parameters on both sides. Motion must remain disabled until explicitly armed. Require acknowledgement, a timeout and a firmware fail-safe on disconnect. | Real backend rejected invalid servo requests and acknowledged STOP through fake serial. Firmware verification pending |
+| Model artifacts | Verify provenance and hashes, and load only approved local artifacts. Reject uploaded or arbitrary checkpoint paths. Review dependencies and disable unneeded inference-library network features. | Artifact manifest and loader absent |
+
+The public release gates include a dependency audit of the resolved environments and a real smoke test showing loopback-only listeners, zero writes with recording disabled, and no motion or reminders during camera failure, missing predictions or GPU failure. See the [dependency audit](dependencies.md).
+
+The backend defaults to a synthetic camera and loopback. The frontend dev script and API URL are also loopback. The backend defaults enable physical serial discovery and prediction logging. Use the supplied mock override for initial startup and have the backend owner make real serial access and prediction persistence explicit opt-ins. Validate bounds and enums at the request boundary and defensive framing at the serial boundary. The current backend wire models accept unconstrained box coordinates and the low-level serial encoder does not validate its tokens. Verify service-level validation before connecting actuators.
+
+The inference engine falls back to a flagged mock on allocation/load failure. During inference failure it retains the previous result and does not publish an explicit unavailable result in that path. A downstream freshness gate and explicit degraded status are needed for safe decisions.

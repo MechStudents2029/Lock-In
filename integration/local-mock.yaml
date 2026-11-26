@@ -1,0 +1,15 @@
+server:
+  host: 127.0.0.1
+  port: 8000
+  cors_origins: ["http://127.0.0.1:5173"]
+camera:
+  source: synthetic
+inference:
+  device: cpu
+  default_model: mock
+hardware:
+  enabled: false
+  mock: true
+storage:
+  data_dir: data/integration-mock
+  log_predictions: false
