@@ -1,0 +1,5 @@
+# Optional: real inference. Install the CUDA torch wheel first (see README), then:
+ultralytics==8.4.219
+mediapipe==1.2.3
+nvidia-ml-py==12.560.30
+joblib>=1.4

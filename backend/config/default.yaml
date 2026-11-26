@@ -1,0 +1,48 @@
+# Lock-In AI backend configuration. Override path with LOCKIN_BACKEND_CONFIG.
+server:
+  host: 127.0.0.1          # local only; never expose without auth
+  port: 8000
+  cors_origins: ["http://localhost:5173", "http://127.0.0.1:5173"]
+
+camera:
+  source: "synthetic"      # "webcam:0" | "file:<path>" | "synthetic" (labelled mock)
+  width: 640
+  height: 480
+  fps: 30
+  loop_file: true
+
+inference:
+  device: "auto"           # auto | cuda | cpu
+  default_model: "mock"    # mock | A | B | C
+  max_fps: 30              # cap on inference rate; extra frames are dropped
+  ml_src_path: "../ml/src" # added to sys.path so the ML agent's package is importable
+  ml_adapter_module: "lockin_cv.backend_adapter"  # must expose create_model(model_id, device)
+
+video:
+  max_fps: 15              # WebSocket video rate cap
+  jpeg_quality: 70
+  max_width: 640           # frames wider than this are downscaled before encoding
+
+hardware:
+  enabled: true
+  port: "auto"             # "auto" or e.g. "COM5"
+  baudrate: 115200
+  ack_timeout_s: 0.5
+  heartbeat_interval_s: 0.5
+  link_timeout_s: 2.0      # no valid reply for this long -> link considered dead
+  handshake_timeout_s: 5.0 # Arduinos reset on connect; allow boot time
+  reconnect_interval_s: 2.0
+  servo_min_deg: 0
+  servo_max_deg: 180
+  servo_ids: ["pan", "tilt"]
+  mock: false              # true = in-process simulated Arduino (clearly flagged)
+
+monitor:
+  interval_s: 1.0
+
+storage:
+  data_dir: "data"
+  db_file: "lockin.sqlite3"
+  prediction_log_hz: 2.0   # max prediction rows/second written to SQLite
+  log_predictions: true
+  recordings_dir: "recordings"   # under data_dir; recording is OFF unless explicitly started
