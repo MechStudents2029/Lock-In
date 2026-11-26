@@ -1,0 +1,5 @@
+{
+  "enabledPlugins": {
+    "nvidia-tao-toolkit@tao-skill-bank": true
+  }
+}
